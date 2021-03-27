@@ -1,0 +1,226 @@
+// Fonts
+// @import url('https://fonts.googleapis.com/css?family=Nunito');
+@import url('https://fonts.googleapis.com/css?family=Rubik:300,400,500,700,900|Montserrat:300,400,500,600,700,800,900');
+
+// Variables
+@import 'variables';
+
+// Bootstrap
+// @import '~bootstrap/scss/bootstrap';
+
+// GLOBAL
+.inline-block{ display: inline-block; }
+
+#dashboard{
+    .col-12{
+        z-index: -1;
+    }
+}
+
+label{
+    &.radio-inline{
+        margin-right: 20px;
+    }
+}
+
+#dz{
+    &.dropzone{
+        min-height: 100px;    
+        .dz-message:before {
+            content: none,
+        }
+    } 
+    .dz-message{
+        font-size: 15px;
+        position: unset;
+        height: 50px;
+    }
+}
+
+.drawtime{
+    border-radius: 20px;
+    padding: 3px 8px;
+    font-size: 13px;
+    &.time-11{
+        background-color: $blue;
+        color: #fff;
+    }
+    &.time-16{
+        background-color: $orange;
+    }
+    &.time-21{
+        color: #fff;
+        background-color: $gray;
+    }
+}
+
+.bet-item + .bet-item:before {
+    content: ", ";
+}
+
+.table > tbody > tr > td { vertical-align: middle; }
+img.profile-image-thumb{ width: 60px; border-radius: 50px; }
+
+.form-body {
+    .game-row{
+        margin: 10px auto;
+        padding: 10px 0;
+        border-bottom: 1px solid #d3dce9;
+    }
+}
+
+p.content-sub-header{
+    margin-bottom: 0;
+}
+
+ul.router-links-menu{
+    list-style-type: none;
+    display: inline-flex;
+    padding: 0;
+    margin: 0;
+    li{ 
+        margin: 0 20px;
+        a.router-link-active {
+            border-bottom: solid 3px #FF586B;
+            padding-bottom: 5px;
+        }
+    }
+}
+
+.vue-switcher-theme--custom {
+    &.vue-switcher-color--blue {
+        div {
+            margin-top: 20px;
+            background-color: lighten(rgb(55, 188, 155), 10%);
+            &:after {
+                // for the circle on the switch
+                background-color: darken(rgb(55, 188, 155), 5%);
+            }
+        }
+        &.vue-switcher--unchecked {
+            div {
+                background-color: lighten(#FF586B, 15%);
+                &:after {
+                    background-color: lighten(#FF586B, 5%);
+                }
+            }
+        }
+    }
+}
+
+html .swal2-popup{ 
+    &.width-45{ width: 45em; }
+    .table th{
+        font-weight: 500;
+        font-size: 16px;
+    }
+}
+
+.swal2-container.popup-profile{
+    img.swal2-image{ border-radius: 100px; margin-bottom: 5px; }
+    #swal2-content p{
+        text-align: right;
+        width: 80%;
+        margin: 0 auto;
+        border-bottom: 1px solid #d3dce9;
+        padding-bottom: 10px;
+        margin-top: 10px;
+        strong{ text-align: left; float: left; font-weight: 500; }
+    }
+    #swal2-content p:last-child{ border: none; }
+    #swal2-content .ticket > p{ width: 100%; }
+    #swal2-content .ticket > p:last-child{ margin-bottom: 25px; }
+}
+
+.draw_details{
+    margin-bottom: 10px;
+    p{ display: inline; margin-right: 20px; }
+}
+
+.table.bg-morning{ background-color: $morning; }
+.table.bg-afternoon{ background-color: $afternoon; }
+.table.bg-night{ background-color: $night; }
+
+.swal2-container.popup-control {
+    .swal2-popup{ width: 90%; }
+    .tab-wrapper{ overflow: auto; padding: 5px; }
+    .tab-wrapper > .row{ min-width: 1000px; margin: 0; }
+}
+
+.toasted.success{ color: #fff !important; }
+
+span.added{
+    color: $blue;
+    span.remove{
+        color: $red;
+        cursor: pointer;
+    }
+}
+
+.dp-fullwidth {
+    padding-right: 0 !important;
+    .mx-datepicker{ width: 100%; }
+}
+
+span.amount{
+    color: $teal;
+    &.negative{
+        color: $red;
+    }
+    &.strong {
+        color: $green;
+    }
+}
+
+.underline {
+    text-decoration: underline !important;
+}
+
+.filter-buttons{ 
+    display: flex; 
+    button{
+        align-self: flex-end;
+        margin-bottom: 0 !important; 
+        margin-right: 10px;
+    }
+}
+
+// Add Bet
+.form.addbet{
+    padding: 10px;
+    input.focused_input{
+        color: #000;
+        background-color: rgb(62, 142, 65, 0.4);
+    }
+}
+
+// Keypad
+.keypad-wrapper {
+    width: 100%;
+    margin: 0 auto !important;
+    .kbtn{
+        float: left;
+        width: 33.3%;
+        text-align: center;
+        cursor: pointer;
+        padding: 5px !important;
+        border: none !important;
+        span{
+            -webkit-transition-duration: 0.1s;
+            transition-duration: 0.1s;
+            display: block;
+            border: 1px solid #ccc;
+            line-height: 40px;
+            border-radius: 3px;
+        }
+        &.sbtn{
+            width: 50%;
+            float: left;
+        }
+    }
+    .kbtn:active span {
+        color: #fff;
+        background-color: rgb(62, 142, 65);
+        transform: translateY(4px);
+    }
+}
