@@ -200,7 +200,7 @@ class TransactionController extends Controller
         // &optimize
         if( $activate_credits ){
             $total_bet_payable = CreditsHelper::getBetTotalPayable($txn_request['tickets']);
-            $credits_bal = $agent->credits;
+            $credits_bal = $agent->creditBalance();
             if( $credits_bal < $total_bet_payable ){
                 return array(
                     'success' => false,
