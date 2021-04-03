@@ -99,6 +99,7 @@ export default {
         // helpers
         async fetchUser(){
             await axios.get('/api/user').then(response => {
+                this.$cookies.remove(`${this.COOKIE_PREFIX}user`);
                 this.$cookies.set(`${this.COOKIE_PREFIX}user`, response.data)
             });
         }
