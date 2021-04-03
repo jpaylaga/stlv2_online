@@ -2,6 +2,7 @@ let origin = window.location.origin
 // let ROUTE_TOKEN = process.env.ORG_SECRET_TOKEN ? process.env.ORG_SECRET_TOKEN : 'wzAh9mOfP5PdCx7VBqJBVuHLcEhblqmO2VV65JzLtsx1qjJyWuWC'
 
 export const constants = {
+    APP_BASE_URL: origin,
     COOKIE_PREFIX: "__stlv2_",
     DRAWTIME_MORNING: process.env.MIX_DRAWTIME_MORNING,
     DRAWTIME_AFTERNOON: process.env.MIX_DRAWTIME_AFTERNOON,

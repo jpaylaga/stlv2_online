@@ -143,8 +143,17 @@ class CreditRequestController extends Controller
                 if( !$result ){
                     return ['success' => false, 'message' => 'Something went wrong on updating user credit, please try again.'];
                 }
-            }else{ //withdrawals
-                
+            }else{ //withdrawals - transfer from player to coordinators
+                if( in_array($user->role, ['area_admin', 'coordinator']) ){
+                    CreditHistory::create([
+                        'type' => 'transfer',
+                        'to' => $user->id,
+                        'from' => $creditrequest->player_id,
+                        'amount' => (int)$creditrequest->amount,
+                        'user_id' => $user->id,
+                        'description' => 'Player withdrawal approval'
+                    ]);
+                }
             }
         }elseif( $request->status == 'cancelled' && $creditrequest->type == 'withdraw' ){
             $result = $creditrequest->updateUserCredit(true); //update to refund 

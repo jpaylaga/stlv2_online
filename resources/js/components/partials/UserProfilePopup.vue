@@ -14,8 +14,6 @@
         methods: {
             viewProfile(user){
 
-                console.log();
-
                 let html = '<img class="profile-image-thumb" v-if="user.picture" :src="`/storage/profile_images/${user.picture}`" alt="">';
 
                 html += '<p><strong>ID Number: </strong> '+(user.id_number ? user.id_number : '&nbsp;')+'</p>';
