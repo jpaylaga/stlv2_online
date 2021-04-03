@@ -31,6 +31,11 @@ export default {
             if( current_user_id == user_id ) return true;
             return false
         },
+        $isCoordinator() {
+            let role = this.$cookies.get(`${this.COOKIE_PREFIX}user`).role
+            if(role == 'coordinator') return true
+            return false
+        },
         $isAgent() {
             let role = this.$cookies.get(`${this.COOKIE_PREFIX}user`).role
             if(role == 'teller' || role == 'player') return true

@@ -33,7 +33,7 @@
             </div>
 
             <section id="minimal-statistics">
-                <div class="row">
+                <div class="row" v-if="$isCoordinator()">
                     <div class="col-12">
                         <div class="card text-white bg-primary mb-0">
                             <div class="card-body">
