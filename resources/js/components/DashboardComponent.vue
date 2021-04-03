@@ -33,7 +33,7 @@
             </div>
 
             <section id="minimal-statistics">
-                <div class="row" v-if="$isCoordinator()">
+                <div class="row" v-if="user.role == 'coordinator'">
                     <div class="col-12">
                         <div class="card text-white bg-primary mb-0">
                             <div class="card-body">
@@ -53,15 +53,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="col-12">
-                        <div class="mb-0 alert alert-info display-block">
-                            <strong>Referral Link:</strong>
-                            <small>{{`${APP_BASE_URL}/register?referral=${user.api_token}`}}</small>
-                            <button type="button" class="btn btn-success">
-                                <i class="fa fa-clipboard" aria-hidden="true"></i> Copy Referral Link
-                            </button>
-                        </div>
-                    </div> -->
                 </div>
                 <draw-sales :draw_date="draw_date" ref="DrawSales"></draw-sales>
                 <!-- <div class="row match-height"> -->
