@@ -161,15 +161,15 @@ class TransactionController extends Controller
         // }
         // @end fake time - xmas and new year eve
 
-        // if(Carbon::now()
-        //     > Carbon::now()
-        //     ->hour($actual_time)
-        //     ->minute(0)
-        //     ->seconds(0)
-        //     ->subMinutes($cutoff_time)
-        // ) {
-        //     return response(['cut_off' => true], 422);
-        // }
+        if(Carbon::now()
+            > Carbon::now()
+            ->hour($actual_time)
+            ->minute(0)
+            ->seconds(0)
+            ->subMinutes($cutoff_time)
+        ) {
+            return response(['cut_off' => true], 422);
+        }
 
         // init variables and dynamic data
         $txn_request = $request->json()->all();
@@ -398,16 +398,19 @@ class TransactionController extends Controller
             $ticket->total_amount = $ticket_total_amount;
             $ticket->save();
 
-            // broadcast to coordinators view
-            event( new TicketCreated( $ticket, $channel ) );
-            event( new TicketCreated( $ticket, $admin_channel ) );
-            event( new TicketCreated( $ticket, $area_admin_channel ) );
-
             $txn_total_amount += $ticket->total_amount;
         } //@end foreach ticket
 
         $transaction->total_amount = $txn_total_amount;
         $transaction->save();
+
+        $bet_response = array(
+            'success' => true,
+            'transaction' => Transaction::with('tickets.bets', 'game', 'user')
+                ->where('id', $transaction->id)->first(),
+            'sold_out_list' => $sold_out_list,
+            'area' => $area->name
+        );
 
         // deduct credits
         if( $activate_credits ){
@@ -415,13 +418,16 @@ class TransactionController extends Controller
             $agent->save();
         }
 
-        return array(
-            'success' => true,
-            'transaction' => Transaction::with('tickets.bets', 'game', 'user')
-                ->where('id', $transaction->id)->first(),
-            'sold_out_list' => $sold_out_list,
-            'area' => $area->name
-        );
+        // broadcast to coordinators view
+        if( env('ENABLE_BROADCAST', true) ){
+            foreach ($transaction->tickets as $_ticket) {
+                event( new TicketCreated( $_ticket, $channel ) );
+                event( new TicketCreated( $_ticket, $admin_channel ) );
+                // event( new TicketCreated( $ticket, $area_admin_channel ) );
+            }
+        }
+
+        return $bet_response;
     }
 
     public function saveBet($bet_data, $bet_amount, $area_price, $transaction_id, $ticket_id)

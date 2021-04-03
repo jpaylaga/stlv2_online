@@ -90,7 +90,7 @@
             <div class="col-md-6">
                 <h4 class="form-section-heading"><i class="fa fa-rub"></i> Credit History</h4>
                 <h5 class="pull-left"><strong>Current Credits: {{player.credits | currency('&#8369;', 0)}} </strong></h5>
-                <button @click="openModal" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Add Credits</button>
+                <!-- <button @click="openModal" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Add Credits</button> -->
                 <div class="clearfix">&nbsp;</div>
                 <div class="clearfix" v-if="player.creditHistory">
                     <vue-good-table 

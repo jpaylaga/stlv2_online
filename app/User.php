@@ -7,6 +7,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\CreditHistory;
+use App\Transaction;
 
 class User extends Authenticatable
 {
@@ -80,14 +81,28 @@ class User extends Authenticatable
     }
 
     public function creditBalance(){
+        $deposits = $withdraws = $transactions = $transfer_cash_ins = $transfer_cash_outs = 0;
+
         $deposits = CreditHistory::where('to', $this->id)
             ->where('type', 'deposit')
             ->sum('amount');
         $withdraws = CreditHistory::where('to', $this->id)
             ->where('type', 'withdraw')
             ->sum('amount');
+        $transactions = Transaction::where('user_id', $this->id)
+            ->sum('total_amount');
 
-        return $deposits - $withdraws;
+        $transfer_cash_ins = CreditHistory::where('from', $this->id) //transfer credits to other account
+            ->where('type', 'transfer')
+            ->sum('amount');
+        $transfer_cash_outs = CreditHistory::where('to', $this->id) //transfer credits to account from withdrawals
+            ->where('type', 'transfer')
+            ->sum('amount');
+        
+        $total_incoming = $deposits + $transfer_cash_outs;
+        $total_outgoing = $withdraws + $transactions + $transfer_cash_ins;
+
+        return $total_incoming - $total_outgoing; 
     }
 
     public function creditLogs($type = '', $limit = 20){

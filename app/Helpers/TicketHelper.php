@@ -5,6 +5,7 @@ namespace App\Helpers;
 use App\Bet;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\User;
 
 class TicketHelper
 {
@@ -24,7 +25,7 @@ class TicketHelper
                 $agents->push($user);
             }
             $agents = $agents->pluck('id');
-        } elseif ( $user->role == 'usher' || $user->role == 'teller' ) {
+        } elseif ( in_array($user->role, ['usher', 'teller', 'player']) ) {
             $agents = User::where('id', $user->id)->get();
             $agents = $agents->pluck('id');
         }
@@ -32,10 +33,13 @@ class TicketHelper
         $transactions_query = DB::table('transactions')
             ->join('tickets', 'transactions.id', '=', 'tickets.transaction_id')
             ->join('users', 'transactions.user_id', '=', 'users.id')
-            ->select('tickets.id', 'tickets.created_at', 'tickets.draw_date', 'tickets.draw_time', 'tickets.ticket_number', 'tickets.total_amount', 'transactions.code as txn_code', 'transactions.id as txn_id', 'users.firstname', 'users.lastname')
+            ->select('tickets.id', 'tickets.created_at', 'tickets.draw_date', 'tickets.draw_time', 'tickets.is_cancelled', 'tickets.ticket_number', 'tickets.total_amount', 'transactions.code as txn_code', 'transactions.id as txn_id', 'users.firstname', 'users.lastname')
             ->whereBetween('tickets.draw_date', [$date_from, $date_to])
-            ->where('tickets.total_amount', '>',  0)
-            ->where('tickets.is_cancelled', false);
+            ->where('tickets.total_amount', '>',  0);
+            // ->where('tickets.is_cancelled', false);
+        if( $user->role != 'player' ){
+            $transactions_query->where('tickets.is_cancelled', false);
+        }
 
         // FILTER
         if( $agents )

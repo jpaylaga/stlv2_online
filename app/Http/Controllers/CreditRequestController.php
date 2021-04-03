@@ -15,4 +15,9 @@ class CreditRequestController extends Controller
     {
         return view('credit.requests');
     }
+
+    public function references()
+    {
+        return view('credit.references');
+    }
 }

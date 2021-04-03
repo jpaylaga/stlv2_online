@@ -190,7 +190,7 @@ span.amount{
     padding: 10px;
     input.focused_input{
         color: #000;
-        background-color: rgb(62, 142, 65, 0.4);
+        background-color: rgb(12 194 126 / 50%);
     }
 }
 
@@ -216,11 +216,58 @@ span.amount{
         &.sbtn{
             width: 50%;
             float: left;
+            span{
+                background-color: #009DA0;
+                color: #fff;
+            }
         }
     }
     .kbtn:active span {
         color: #fff;
-        background-color: rgb(62, 142, 65);
+        background-color: rgb(12,194,126);
         transform: translateY(4px);
+    }
+}
+
+.unselected-btn-card{
+    border: 1px solid #ccc !important;
+}
+
+// extra small grid
+@media (max-width: 576px) {
+    .force-unwidth{
+        display: block !important;
+        margin: 0 !important;
+        .col-sm-12 {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .col-sm-4 {
+            float: left;
+            width: 33.3% !important;
+            padding: 0 5px;
+            &:first-child{ padding-left: 0; }
+            &:last-child{ padding-right: 0; }
+        }
+        .col-sm-6 {
+            float: left;
+            width: 50% !important;
+            padding: 0 5px;
+            &:first-child{ padding-left: 0; }
+            &:last-child{ padding-right: 0; }
+        }
+    }
+    .pull-right, .pull-left{
+        float: none !important;
+    }
+    .vgt-wrap__footer{
+        padding: 0.5em !important;
+    }
+    .vgt-wrap__footer .footer__row-count__label{
+        font-size: 0.8rem !important;
+        margin-bottom: 0 !important;
+    }
+    .vgt-wrap__footer .footer__row-count__select{
+        font-size: 0.8rem !important;
     }
 }

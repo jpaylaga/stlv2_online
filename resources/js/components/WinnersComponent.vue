@@ -6,6 +6,9 @@
             <div class="col-12 mt-1 mb-1">
                 <div class="content-header">{{draw_date | draw_date}} Winners</div>
                 <p class="content-sub-header">ALL | Total Hits: {{summary_total_hits}} | Total amount: {{summary_total_winnings | currency('&#8369;')}}</p>
+                <div class="alert alert-info inline-block" v-if="!$is('super_admin')">
+                    <h5 class="mb-0">Current Balance: <strong>{{credit_balance | currency('&#8369;')}}</strong></h5>
+                </div>
                 <nav id="top-right-text">
                     <ul>
                         <li>
@@ -47,9 +50,7 @@
                                             <label>Draw Time</label>
                                             <select id="draw_time" v-model="draw_time" class="form-control" @change="fetchData">
                                                 <option value="">All</option>
-                                                <option value="11">11AM</option>
-                                                <option value="16">4PM</option>
-                                                <option value="21">9PM</option>
+                                                <option v-for="dt in $getDrawTimeOptions()" :key="dt.id" :value="dt.id">{{dt.name}}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -100,7 +101,7 @@
                                             <td>{{win.bet.winning_amount | currency('&#8369;')}}</td>
                                             <td>
                                                 {{ win.ticket.draw_date | draw_date }} 
-                                                <span class="drawtime" :class="'time-' + win.ticket.draw_time">{{win.ticket.draw_time | draw_time}}</span>
+                                                <span class="drawtime" :class="'time-' + win.ticket.draw_time">{{$getDrawTimeOptions(win.ticket.draw_time)}}</span>
                                             </td>
                                             <td>
                                                 <span class="badge" :class="'badge-' + (win.status == 'paid' ? 'success' : 'danger')">
@@ -161,6 +162,8 @@
                     }
                 },
                 ticket_number: '',
+                credit_balance: 0,
+                current_user: null,
             }
         },
         computed: {
@@ -170,6 +173,8 @@
         },
         created () {
             this.fetchHeadingData();
+            this.current_user = this.$getUser();
+            this.getCreditBalance()
         },
         components: {
             Loading, DatePicker, 'print-winners-list': WinnersList
@@ -203,6 +208,11 @@
                     this.isLoading = false;
                 }).catch(err => {
                     this.isLoading = false;
+                });
+            },
+            getCreditBalance(){
+                axios.get('/api/user/credit-balance/' + this.current_user.id).then(response => {
+                    this.credit_balance = response.data.credit_balance
                 });
             },
             payWinner(){

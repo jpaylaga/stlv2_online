@@ -25,4 +25,9 @@ class PlayerDashboardController extends Controller
     {
         return view('players.dashboard');
     }
+
+    public function winnings()
+    {
+        return view('players.winnings');
+    }
 }

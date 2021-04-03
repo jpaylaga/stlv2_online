@@ -16,6 +16,7 @@ Auth::routes();
 Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/player_dashboard', 'PlayerDashboardController@index')->name('player-dashboard');
+    Route::get('/winnings', 'PlayerDashboardController@winnings');
 
     Route::get('/', 'DashboardController@index')
         ->middleware('can:manage-users')
@@ -86,6 +87,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['middleware' => ['can:transfer-credits']], function () {
         Route::get('/credits', 'CreditsController@index');
         Route::get('/credit-requests', 'CreditRequestController@index');
+        Route::get('/credit-references/{any?}', 'CreditRequestController@references')
+        ->where('any', '.*');
     });
 
     Route::group(['middleware' => ['can:god-mode']], function () {
@@ -97,6 +100,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::prefix('play')->group(function () {
         Route::get('/games', 'GameController@listGames');
         Route::get('/stl', 'GameController@playStl');
+    });
+
+    Route::prefix('credit-balance')->group(function () {
+        Route::get('/info', 'CreditsController@info');
+        Route::get('/topup', 'CreditsController@topup');
+        Route::get('/withdraw', 'CreditsController@withdraw');
     });
 
 });

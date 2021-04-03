@@ -74,6 +74,9 @@
                         <li class="{{ Request::segment(1) == 'credit-requests' ? 'active' : '' }}">
                             <a href="/credit-requests" class="menu-item">Requests</a>
                         </li>
+                        <li class="{{ Request::segment(1) == 'credit-references' ? 'active' : '' }}">
+                            <a href="/credit-references" class="menu-item">References</a>
+                        </li>
                     </ul>
                 </li>
                 @endcan
@@ -109,7 +112,7 @@
                 </li>
                 @endcan
                 @if( Auth::user()->role == 'coordinator' )
-                    <li class="nav-item {{ Request::segment(1) == 'manage-tellers' ? 'active' : '' }}">
+                    <!-- <li class="nav-item {{ Request::segment(1) == 'manage-tellers' ? 'active' : '' }}">
                         <a href="/manage-tellers" class="menu-item">
                             <i class="icon-users"></i>
                             <span data-i18n="" class="menu-title">Agents/Tellers</span>
@@ -120,12 +123,64 @@
                             <i class="fa fa-users"></i>
                             <span data-i18n="" class="menu-title">Players</span>
                         </a>
-                    </li>
-                    <li class="nav-item {{ Request::segment(1) == 'credit-requests' ? 'active' : '' }}">
+                    </li> -->
+                    <!-- <li class="nav-item {{ Request::segment(1) == 'credit-requests' ? 'active' : '' }}">
                         <a href="/credit-requests" class="menu-item">
                             <i class="fa fa-rub"></i>
                             <span data-i18n="" class="menu-title">Credit Requests</span>
                         </a>
+                    </li> -->
+                    <li class="has-sub nav-item">
+                        <a href="#">
+                            <i class="icon-users"></i>
+                            <span data-i18n="" class="menu-title">Users</span>
+                        </a>
+                        <ul class="menu-content">
+                            <li class="nav-item {{ Request::segment(1) == 'manage-tellers' ? 'active' : '' }}">
+                                <a href="/manage-tellers" class="menu-item">
+                                    <i class="icon-users"></i>
+                                    <span data-i18n="" class="menu-title">Agents/Tellers</span>
+                                </a>
+                            </li>
+                            <li class="nav-item {{ Request::segment(1) == 'manage-players' ? 'active' : '' }}">
+                                <a href="/manage-players" class="menu-item">
+                                    <i class="fa fa-users"></i>
+                                    <span data-i18n="" class="menu-title">Players</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="has-sub nav-item">
+                        <a href="#">
+                            <i class="fa fa-rub"></i>
+                            <span data-i18n="" class="menu-title">Credit</span>
+                        </a>
+                        <ul class="menu-content">
+                            <!-- <li class="{{ Request::segment(2) == 'info' ? 'active' : '' }}">
+                                <a href="/credit-balance/info" class="menu-item">
+                                    <i class="fa fa-address-book"></i>
+                                    <span data-i18n="" class="menu-title">Requests</span>
+                                </a>
+                            </li> -->
+                            <li class="nav-item {{ Request::segment(1) == 'credit-requests' ? 'active' : '' }}">
+                                <a href="/credit-requests" class="menu-item">
+                                    <i class="fa fa-address-book"></i>
+                                    <span data-i18n="" class="menu-title">Requests</span>
+                                </a>
+                            </li>
+                            <li class="{{ Request::segment(2) == 'topup' ? 'active' : '' }}">
+                                <a href="/credit-balance/topup" class="menu-item">
+                                    <i class="fa fa-download"></i>
+                                    <span data-i18n="" class="menu-title">Topup</span>
+                                </a>
+                            </li>
+                            <li class="{{ Request::segment(2) == 'withdraw' ? 'active' : '' }}">
+                                <a href="/credit-balance/withdraw" class="menu-item">
+                                    <i class="fa fa-upload"></i>
+                                    <span data-i18n="" class="menu-title">Withdraw</span>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
                 <!-- <li class="nav-item {{ Request::segment(1) == 'manage-users' ? 'active' : '' }}">
@@ -221,21 +276,44 @@
             <!-- PLAYERS ONLY -->
             @if( Auth::user()->role == 'player' )
                 <ul id="main-menu-navigation" data-menu="menu-navigation" class="navigation navigation-main">
+                    <li class="nav-item {{ Request::segment(1) == 'player_dashboard' ? 'active' : '' }}">
+                        <a href="/player_dashboard">
+                            <i class="fa fa-tachometer"></i>
+                            <span data-i18n="" class="menu-title">Dashboard</span>
+                        </a>
+                    </li>
                     <li class="nav-item {{ Request::segment(1) == 'transactions' ? 'active' : '' }}">
                         <a href="/transactions">
                             <i class="icon-book-open"></i>
                             <span data-i18n="" class="menu-title">Transactions</span>
                         </a>
                     </li>
-                    <li class="nav-item {{ Request::segment(1) == 'credits' ? 'active' : '' }}">
-                        <a href="/credits">
-                            <i class="ft-credit-card"></i>
-                            <span data-i18n="" class="menu-title">Credits</span>
+                    <li class="nav-item {{ Request::segment(1) == 'winnings' ? 'active' : '' }}">
+                        <a href="/winnings">
+                            <i class="fa fa-trophy"></i>
+                            <span data-i18n="" class="menu-title">Winnings</span>
                         </a>
                     </li>
                     <li class="has-sub nav-item">
                         <a href="#">
-                            <i class="ft-sunset"></i>
+                            <i class="fa fa-rub"></i>
+                            <span data-i18n="" class="menu-title">Credit</span>
+                        </a>
+                        <ul class="menu-content">
+                            <li class="{{ Request::segment(2) == 'info' ? 'active' : '' }}">
+                                <a href="/credit-balance/info" class="menu-item">Requests</a>
+                            </li>
+                            <li class="{{ Request::segment(2) == 'topup' ? 'active' : '' }}">
+                                <a href="/credit-balance/topup" class="menu-item">Topup</a>
+                            </li>
+                            <li class="{{ Request::segment(2) == 'withdraw' ? 'active' : '' }}">
+                                <a href="/credit-balance/withdraw" class="menu-item">Withdraw</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="has-sub nav-item">
+                        <a href="#">
+                            <i class="fa fa-plus-square"></i>
                             <span data-i18n="" class="menu-title">Play</span>
                         </a>
                         <ul class="menu-content">
@@ -243,6 +321,16 @@
                                 <a href="/play/stl" class="menu-item">STL</a>
                             </li>
                         </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('logout') }}" onclick="event.preventDefault();
+                                    document.getElementById('logout-form').submit();">
+                            <i class="ft-power mr-2"></i>
+                            <span data-i18n="" class="menu-title">Logout</span>
+                        </a>
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                            @csrf
+                        </form>
                     </li>
                 </ul>
             @endif

@@ -1,53 +1,85 @@
 <template>
     <div class="main-content">
+        <loading :active.sync="isLoading"></loading>
         <div class="">
             <div class="col-md-12">
-                <div class="card">
+                <div class="card mt-0">
                     <div class="card-body">
-                        <form class="form addbet" @submit.prevent="save" v-if="!success_ticket">
+                        <form class="form addbet" @submit.prevent="save">
                             <div class="form-body">
                                 <h4 class="form-section"><i class="ft-file-plus"></i> Add Bet</h4>
+                                <p>Credit Balance: <strong>{{credit_balance | currency('&#8369;')}}</strong></p>
 
                                 <!-- Games -->
-                                <div class="form-group row">
+                                <!-- <div class="form-group row">
                                     <div class="col-md-12">
                                         <label id="game" v-for="game in gameOptions" :key="game.id" class="radio-inline">
                                             <input v-model="transaction.game_id" type="radio" :value="game.id"> {{game.name}} 
                                         </label>
                                     </div>
+                                </div> -->
+                                <div class="row force-unwidth mb-2 clearfix">
+                                    <div class="col-sm-12 m-0">
+                                        <label class="mb-0">GAME</label>
+                                    </div>
+                                    <div v-for="game in gameOptions" :key="game.id" class="col-sm-4">
+                                        <div 
+                                            :class="{ 'text-white bg-success' : transaction.game_id == game.id }" 
+                                            class="card m-0 p-1" 
+                                            @click="transaction.game_id = game.id">
+                                            <div class="card-body">
+                                                <center> {{game.name}} </center>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <!-- @end Games -->
 
                                 <!-- Draw Time -->
-                                <div class="form-group row">
-                                    <div class="col-md-12">
-                                        <label id="game" v-for="drawtime in $getDrawTimeOptions()" :key="drawtime.id" class="radio-inline">
-                                            <input :disabled="!canStillBet(drawtime.id)" v-model="selectedDrawTime" type="radio" :value="drawtime.id"> {{drawtime.name}} 
-                                        </label>
+                                <div class="row force-unwidth clearfix">
+                                    <div class="col-sm-12 m-0">
+                                        <label class="mb-0">DRAW TIME</label>
+                                    </div>
+                                    <div v-for="drawtime in $getDrawTimeOptions()" :key="drawtime.id" class="col-sm-4">
+                                        <div 
+                                            :class="{
+                                                'text-white bg-success' : selectedDrawTime == drawtime.id, 
+                                                'text-white bg-danger': !canStillBet(drawtime.actual_time)}" 
+                                            class="card m-0 p-1" 
+                                            @click="selectDrawTime(drawtime)">
+                                            <div class="card-body">
+                                                <center> {{drawtime.name}} </center>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- @end Draw Time -->
 
-                                <div class="form-group row">
-                                    <div class="col-md-3"> <label for="combination">Combination</label> </div>
+                                <div class="form-group row mt-2 mb-1">
+                                    <div class="col-md-3"> <label for="combination" class="mb-0">Combination</label> </div>
                                     <div class="col-md-12">
                                         <input @focus="focused_input = 'combination'" name="combination" v-model="bet.combination" type="text" class="form-control" :class="focused_input == 'combination' ? 'focused_input' : ''">
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <div class="col-md-3"> <label for="amount">Amount</label> </div>
+                                    <div class="col-md-3"> <label class="mb-0" for="amount">Amount</label> </div>
                                     <div class="col-md-12">
                                         <input @focus="focusInput('amount')" name="amount" v-model="bet.amount" type="number" min="1" max="999" class="form-control" :class="focused_input == 'amount' ? 'focused_input' : ''">
                                     </div>
                                 </div>
 
                                 <!-- View -->
-                                <div class="form-group row">
-                                    <div class="col-md-12">
-                                        <label id="game" v-for="view in drawers" :key="view" class="radio-inline">
-                                            <input v-model="selectedView" type="radio" :value="view"> {{view}} 
-                                        </label>
+                                <div class="force-unwidth clearfix mb-2">
+                                    <div v-for="view in drawers" :key="view" class="col-sm-6">
+                                        <div :class="selectedView == view ? 'text-white bg-success' : 'unselected-btn-card'" class="card m-0 p-1" @click="selectedView = view">
+                                            <div class="card-body">
+                                                <center> 
+                                                    {{view}} 
+                                                    <span v-if="view=='bets' && ticket.bets.length > 0">({{ticket.bets.length}})</span>
+                                                </center>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- @end View -->
@@ -57,7 +89,7 @@
                                         <span v-if="k == 'back'"><i class="ft-delete"></i></span> 
                                         <span v-else>{{k}}</span> 
                                     </div>
-                                    <div class="kbtn sbtn" @click="addBet('target')">
+                                    <div class="kbtn sbtn" @click="addBet('straight')">
                                         <span>Target</span> 
                                     </div>
                                     <div class="kbtn sbtn" @click="addBet('ramble')">
@@ -80,24 +112,16 @@
                                                 <td>{{bet.combination}}</td>
                                                 <td>{{bet.type}}</td>
                                                 <td>{{bet.amount}}</td>
-                                                <td><i class="ft-x-circle" @click="removeBet(index)"></i></td>
+                                                <td><i class="ft-x-circle danger" @click="removeBet(index)"></i></td>
                                             </tr>
                                         </tbody>
                                     </table>
-                                    <button v-if="ticket.bets.length > 0" @click="submitTicket" type="button" class="btn btn-outline-primary"><i class="fa fa-check"></i> Submit Ticket 123</button>
+                                    <button v-if="ticket.bets.length > 0" @click="submitTicket" type="button" class="btn btn-outline-primary"><i class="fa fa-check"></i> Submit Ticket</button>
                                 </div>
 
                             </div>
                         </form>
 
-                        <div v-if="success_ticket">
-                            <table>
-                                <tr>
-                                    <th>Game</th>
-                                    <td>{{success_ticket.transaction.game.name}}</td>
-                                </tr>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -107,10 +131,12 @@
 
 <script>
 import moment from 'moment';
+import Loading from 'vue-loading-overlay';
 
 export default {
     data() {
         return{
+            isLoading: false,
             transaction: {
                 user_id: null,
                 game_id: 1,
@@ -125,7 +151,6 @@ export default {
                 combination: "",
                 amount: "",
             },
-            success_ticket: null, 
             numpad_keys: [7,8,9,4,5,6,1,2,3,'C',0,'back'],
             num: null,
             focused_input: 'combination',
@@ -135,7 +160,11 @@ export default {
             gameOptions: [],
             drawers: ['keypad','bets'],
             player: null,
+            credit_balance: 0,
         }
+    },
+    components: {
+        Loading
     },
     created(){
         this.init();
@@ -144,8 +173,10 @@ export default {
         init(){
             this.player = this.$getUser();
             this.transaction.user_id = this.player.id
-            // this.preSelectDrawTime();
+
+            this.preSelectDrawTime();
             this.loadGames();
+            this.getCreditBalance();
         },
         // options
         async loadGames(){
@@ -157,7 +188,7 @@ export default {
         focusInput(ctx){
             if( ctx == 'amount' ){
                 this.focused_input = 'amount'
-                if( this.bet.amount == "" || this.bet.amount <= 0 ){ 
+            if( this.bet.amount == "" || this.bet.amount <= 0 ){ 
                     this.is_initial_amount = true;
                     this.bet.amount = 1
                 }
@@ -199,6 +230,11 @@ export default {
                 this.selectedDrawTime = this.DRAWTIME_EVENING;
             } 
         },
+        resetTickets(){
+            this.transaction.tickets = [];
+            this.ticket.bets = [];
+            this.clearBet();
+        },
         clearBet(){
             this.bet = {
                 combination: '',
@@ -218,7 +254,7 @@ export default {
             let betObj = {
                 combination: this.bet.combination,
                 type: bet_type,
-                amount: this.bet.amount,
+                amount: parseInt(this.bet.amount),
             }
             this.ticket.bets.push(betObj)
             Vue.toasted.success('Bet successfully added.');
@@ -228,26 +264,38 @@ export default {
             this.ticket.bets.splice(index, 1);
         },
         submitTicket(){
-            // this.ticket.draw_time = this.selectedDrawTime
-            // this.ticket.draw_date = moment(new Date()).format("MM/DD/YYYY")
+            this.ticket.draw_time = this.selectedDrawTime
+            this.ticket.draw_date = moment(new Date()).format("MM/DD/YYYY")
 
             // TEMP
-            this.ticket.draw_time = '11'
-            this.ticket.draw_date = moment(new Date()).add(1, 'days').format("MM/DD/YYYY")
-            this.transaction.tickets.push(this.ticket);
+            // this.ticket.draw_time = '11'
+            // this.ticket.draw_date = moment(new Date()).add(1, 'days').format("MM/DD/YYYY")
 
+            this.transaction.tickets.push(this.ticket);
+            this.isLoading = true;
             axios.post('/api/transaction', this.transaction).then(resp => {
-                console.log(resp.data);
                 if( resp.data.success ){
                     // show ticket / redirect to ticket
+                    this.showTicket(resp.data.transaction.tickets[0].id);
+                    this.resetTickets();
+                    this.getCreditBalance();
+                    this.selectedView = 'keypad';
                     Vue.toasted.success('Ticket successfully submitted.');
-                    this.success_ticket = resp.data.transaction;
                 }else{
                     Vue.toasted.error(resp.data.message);
                 }
             }).catch(error => {
-                console.log(error);
-            }).then(() => {  })
+                if( error.response.status == 422 )
+                    Vue.toasted.error(`DRAW TIME ${this.$getDrawTimeOptions(this.selectedDrawTime)} ALREADY CUTOFF!`)
+                else
+                    Vue.toasted.error('Something went wrong please try again.')
+            }).then(() => { this.isLoading = false })
+        },
+
+        // SELECT OPTIONS
+        selectDrawTime(drawtime){
+            if( this.canStillBet(drawtime.actual_time) )
+                this.selectedDrawTime = drawtime.id;
         },
 
         // HELPERS
@@ -257,6 +305,57 @@ export default {
             if( current_hour.diff(cutoff, 'minutes') > 0 )
                 return false
             return true
+        },
+        getCreditBalance(){
+            axios.get('/api/user/credit-balance/' + this.player.id).then(response => {
+                this.credit_balance = response.data.credit_balance
+            });
+        },
+        showTicket(ticket_id){
+            this.isLoading = true;
+            axios.get('/api/ticket/' + ticket_id).then(response => {
+                let ticket = response.data;
+                let html = '';
+                
+                html += '<div class="ticket">';
+                html += '<p><strong>Transaction ID: </strong> '+this.$options.filters.uppercase(ticket.transaction.code)+'</p>';
+                html += '<p><strong>Ticket ID: </strong> '+this.$options.filters.uppercase(ticket.ticket_number)+'</p>';
+                html += '<p><strong>Total Bet Amount: </strong> '+this.$options.filters.currency(ticket.transaction.total_amount, '&#8369;')+'</p>';
+                html += '<p><strong>Bet Date/Time: </strong> '+this.$options.filters.bet_date(ticket.created_at)+'</p>';
+                html += '<p><strong>Draw Date/Time: </strong> '+this.$options.filters.draw_date(ticket.draw_date)+' ';
+                // html += '<span class="drawtime time-'+ticket.draw_time+'">'+this.$options.filters.draw_time(ticket.draw_time)+'</span>';
+                html += '<span class="drawtime time-'+ticket.draw_time+'">'+this.$getDrawTimeOptions(ticket.draw_time)+'</span>';
+                html += '</p>';
+                html += '<p><strong>Game: </strong> '+ticket.game.name+'</p>';
+                html += '</div>';
+
+                html += '<table class="table text-left">';
+                html += '<tr>';
+                html += '<th>Number</th>';
+                html += '<th>Type</th>';
+                html += '<th>Amount</th>';
+                html += '<th>Win</th>';
+                html += '</tr>';
+                _.forEach(ticket.bets, function(bet, key) {
+                    html += parseInt(bet.amount) > 0 ? '<tr>' : '<tr class="danger">';
+                    html += '<td>'+ bet.combination +'</td>';
+                    html += '<td>'+ (bet.type == 'straight' ? 'T' : 'R') +'</td>';
+                    html += '<td>'+ (parseInt(bet.amount) > 0 ? bet.amount : 'S/O' ) +'</td>';
+                    html += '<td>'+ (parseInt(bet.winning_amount) > 0 ? bet.winning_amount : 'S/O' ) +'</td>';
+                    html += '</tr>';
+                });
+                html += '</table>';
+                
+                this.$swal({
+                    customClass: { container: 'popup-profile' },
+                    title: 'Bet Success!',
+                    html: html,
+                    showCancelButton: true,
+                    cancelButtonText: 'Close',
+                })
+
+            });
+
         }
     }
 }

@@ -137,14 +137,19 @@ Vue.component('outlets', require('./components/settings/OutletsComponent.vue').d
 // credit
 Vue.component('credits', require('./components/credit/CreditsComponent.vue').default);
 Vue.component('credit-requests', require('./components/credit/CreditRequestsComponent.vue').default);
+Vue.component('credit-references', require('./components/credit/CreditReferencesComponent.vue').default);
 
 // Super Admin
 Vue.component('manage-credits', require('./components/CreditsComponent.vue').default);
 
 // Players
 Vue.component('players-dashboard', require('./components/role-player/DashboardComponent.vue').default);
+Vue.component('players-winnings', require('./components/role-player/WinningsComponent.vue').default);
 Vue.component('games', require('./components/role-player/GamesComponent.vue').default);
 Vue.component('stl', require('./components/role-player/PlayStlComponent.vue').default);
+Vue.component('credit-info', require('./components/role-player/credits/CreditInfoComponent.vue').default);
+Vue.component('credit-topup', require('./components/role-player/credits/CreditTopupComponent.vue').default);
+Vue.component('credit-withdraw', require('./components/role-player/credits/CreditWithdrawComponent.vue').default);
 
 // Vue.component('area-summary', require('./components/super-admin/GamesComponent.vue').default);
 

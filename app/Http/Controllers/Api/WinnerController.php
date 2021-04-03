@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
 use App\User;
+use App\CreditHistory;
 
 class WinnerController extends Controller
 {
@@ -83,7 +84,8 @@ class WinnerController extends Controller
 
     public function getWinners(Request $request)
     {
-        $whereDrawDate = $request->filled('draw_date') ? Carbon::parse( $request->draw_date ) : Carbon::now();
+        // $whereDrawDate = $request->filled('draw_date') ? Carbon::parse( $request->draw_date ) : Carbon::now();
+        $whereDrawDate = $request->filled('draw_date') ? Carbon::parse( $request->draw_date ) : false;
 
         $whereWinner = array();
         $whereDraw = array();
@@ -103,10 +105,10 @@ class WinnerController extends Controller
         // }
 
         if( $request->user()->role === 'coordinator' ) {
-            // $agents = $request->user()->children;
-            // $agents = $agents->merge(User::whereId($request->user()->id)->get());
-            $agents = User::whereId($request->user()->id)->get();
-        }elseif( $request->user()->role == 'usher' || $request->user()->role == 'teller' ) {
+            $agents = $request->user()->children;
+            $agents = $agents->merge(User::whereId($request->user()->id)->get());
+            // $agents = User::whereId($request->user()->id)->get();
+        }elseif( $request->user()->role == 'usher' || $request->user()->role == 'teller' || $request->user()->role == 'player' ) {
             $agents = User::where('id', $request->user()->id)->get();
         } elseif ($request->user()->role === 'area_admin') {
             $area = $request->user()->areas()->first();
@@ -128,10 +130,15 @@ class WinnerController extends Controller
 
         }
 
-        $draws = Draw::whereDate('draw_date',$whereDrawDate)->where($whereDraw)->get();
+        $draws_query = Draw::where($whereDraw);
+
+        if( $whereDrawDate ){
+            $draws_query->whereDate('draw_date',$whereDrawDate);
+        }
+
         $winners = new Collection();
         foreach ($agents as $agent) {
-            foreach ($draws as $draw) {
+            foreach ($draws_query->get() as $draw) {
                 $winners = $winners->merge(
                     Winner::where($whereWinner)
                     ->whereValid(true)
@@ -204,13 +211,39 @@ class WinnerController extends Controller
         if( !$request->filled('ticket_number') )
             return array('success' => false, 'message' => 'Ticket not found');
 
-        $wins = Winner::whereTicket_number($request->ticket_number)->whereValid(true)->get();
-        foreach($wins as $win){
+        $win = Winner::whereTicket_number($request->ticket_number)
+            ->whereValid(true)
+            ->where('status', 'pending')
+            ->first();
+
+        if($win){
+            $win_amount = $win->bet->winning_amount;
+            if( in_array( auth()->user()->role, ['coordinator', 'area_admin']) ){
+                if( (int)auth()->user()->creditBalance() < (int)$win_amount )
+                    return ['success' => false, 'message' => 'You have insufficient credits to transfer to this account.'];
+                // transfer amount from coordinator to player
+                CreditHistory::create([
+                    'type' => 'transfer',
+                    'to' => $win->user_id,
+                    'from' => auth()->user()->id,
+                    'amount' => $win_amount,
+                    'user_id' => auth()->user()->id,
+                    'description' => 'Winnings.'
+                ]);
+            }
             $win->status = 'paid';
             $win->payout_date = Carbon::now();
             $win->user_paid = $request->user()->id;
             $win->save();
+        }else{
+            return array('success' => false, 'message' => 'Ticket not found or invalid.');
         }
+        // foreach($wins as $win){
+        //     $win->status = 'paid';
+        //     $win->payout_date = Carbon::now();
+        //     $win->user_paid = $request->user()->id;
+        //     $win->save();
+        // }
 
         return array('success' => true);
 

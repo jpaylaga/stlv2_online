@@ -29,7 +29,7 @@
                     html += '<p><strong>Total Bet Amount: </strong> '+this.$options.filters.currency(ticket.transaction.total_amount, '&#8369;')+'</p>';
                     html += '<p><strong>Bet Date/Time: </strong> '+this.$options.filters.bet_date(ticket.created_at)+'</p>';
                     html += '<p><strong>Draw Date/Time: </strong> '+this.$options.filters.draw_date(ticket.draw_date)+' ';
-                    html += '<span class="drawtime time-'+ticket.draw_time+'">'+this.$options.filters.draw_time(ticket.draw_time)+'</span>';
+                    html += '<span class="drawtime time-'+ticket.draw_time+'">'+this.$getDrawTimeOptions(ticket.draw_time)+'</span>';
                     html += '</p>';
                         
                         // +this.$options.filters.draw_time(ticket.draw_time)
@@ -45,12 +45,12 @@
                     html += '<th>Amount</th>';
                     html += '<th>Win</th>';
                     html += '</tr>';
-                    _.forEach(ticket.bets, function(bet, key) {
-                        html += '<tr>';
+                     _.forEach(ticket.bets, function(bet, key) {
+                        html += parseInt(bet.amount) > 0 ? '<tr>' : '<tr class="danger">';
                         html += '<td>'+ bet.combination +'</td>';
                         html += '<td>'+ (bet.type == 'straight' ? 'Target' : 'Ramble') +'</td>';
-                        html += '<td>&#8369;'+ bet.amount +'</td>';
-                        html += '<td>&#8369;'+ bet.winning_amount +'</td>';
+                        html += '<td>'+ (parseInt(bet.amount) > 0 ? '&#8369;'+bet.amount : 'S/O' ) +'</td>';
+                        html += '<td>'+ (parseInt(bet.winning_amount) > 0 ? '&#8369;'+bet.winning_amount : 'S/O' ) +'</td>';
                         html += '</tr>';
                     });
                     html += '</table>';
@@ -85,7 +85,7 @@
                                         if( response.data.success ){
                                             this.$swal({ 
                                                 title: 'Success!', 
-                                                text: 'Ticket successfully cancelled.', 
+                                                text: 'Ticket successfully cancelled. Refunds should be sent by now.', 
                                                 type: 'success'
                                             }).then((result) => { 
                                                 this.$parent.fetchData();

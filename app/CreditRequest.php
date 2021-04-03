@@ -33,29 +33,23 @@ class CreditRequest extends Model
         return $this->belongsTo(User::class, 'player_id');
     }
 
-    public function updateUserCredit(){
-        $user = auth()->id();
-        $to = $this->player;
-        $credits = $this->amount;
+    public function updateUserCredit($withdrawConfirmation = false){
+
+        $incharge = auth()->user();
+        $player = $this->player;
+        $amount = $this->amount;
         $type = $this->type;
 
-        if( $type == 'deposit' )
-            $to->credits += $this->amount;
-        else
-            $to->credits -= $this->amount;
+        CreditHistory::create([
+            'type' => in_array( $incharge->role, ['coordinator', 'area_admin'] ) ? 'transfer' : $type,
+            'to' => $player->id,
+            'from' => $incharge->id,
+            'amount' => $amount,
+            'user_id' => $incharge->id,
+            'description' => ( $withdrawConfirmation && $this->status == 'cancelled') ? 'Refund to cancelled withdrawal.' : 'Player deposits.'
+        ]);
 
-        if( $to->save() ){
-            CreditHistory::create([
-                'type' => $type,
-                'to' => $to->id,
-                'from' => $user,
-                'amount' => $credits,
-                'user_id' => $user,
-            ]);
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
 }

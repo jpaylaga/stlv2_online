@@ -185,6 +185,11 @@ class UserController extends Controller
     public function store(UserPost $request)
     {
         $user = User::create($request->validated());
+
+        // generate token
+        $user->api_token = GeneratorHelper::generateRegCode();
+        $user->save();
+        
         $this->afterUserPost($request, $user);
         return $user;
     }
@@ -321,4 +326,8 @@ class UserController extends Controller
 
     }
 
+    public function getCreditBalance(User $user)
+    {
+        return array('credit_balance' => $user->creditBalance());
+    }
 }

@@ -81,8 +81,12 @@ class CreditsController extends Controller
     public function getHistory(Request $request)
     {
         $histories_query = DB::table('credit_histories');
+        
         if($request->type)
             $histories_query->where('credit_histories.type', $request->type);
+            
+        if($request->to)
+            $histories_query->where('credit_histories.to', $request->to);
 
         $histories = $histories_query->orderByDesc('created_at')->limit(20)->get();
 

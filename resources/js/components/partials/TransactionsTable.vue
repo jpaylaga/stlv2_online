@@ -53,9 +53,7 @@
                                             <label>Draw Time</label>
                                             <select id="draw_time" v-model="draw_time" class="form-control" @change="fetchData">
                                                 <option value="">All</option>
-                                                <option value="11">11AM</option>
-                                                <option value="16">4PM</option>
-                                                <option value="21">9PM</option>
+                                                <option v-for="dt in $getDrawTimeOptions()" :key="dt.id" :value="dt.id">{{dt.name}}</option>
                                             </select>
                                         </div>
                                     </div>
@@ -83,10 +81,56 @@
                         </div>
                         <div class="card-body">
                             <div class="card-block">
-                                <table class="table table-responsive-lg text-left">
+                                <vue-good-table 
+                                    mode="remote"
+                                    :totalRows="totalRecords"
+                                    :columns="columns" 
+                                    :rows="tickets"
+                                    :sort-options="{ enabled: false }"
+                                    :pagination-options="paginationOptions"
+                                    @on-page-change="onPageChange"
+                                    @on-per-page-change="onPerPageChange"
+                                >
+                                    <template slot="table-row" slot-scope="props">
+                                        <span v-if="props.column.field == 'ticket_number'">
+                                            <ticket-popup 
+                                                :ticket_id="props.row.id"
+                                                :ticket_number="props.row.ticket_number"
+                                                :show_cancel="true">
+                                            </ticket-popup>
+                                        </span>
+                                        <span v-else-if="props.column.field == 'teller'">
+                                            {{props.row.firstname +' '+ props.row.lastname}}
+                                        </span>
+                                        <span v-else-if="props.column.field == 'txn_code'">
+                                            {{props.row.txn_code}} 
+                                            <span v-if="props.row.is_cancelled" class="badge badge-danger">Cancelled</span>
+                                        </span>
+                                        <span v-else-if="props.column.field == 'bets'">
+                                            ({{Object.keys(props.row.bets).length}})
+                                            <span v-for="(value, combi) in props.row.bets" :key="value" class="bet-item">
+                                                <span>{{ combi }}</span>
+                                            </span>
+                                        </span>
+                                        <span v-else-if="props.column.field == 'total_amount'">
+                                            {{props.row.total_amount | currency('&#8369;')}}
+                                        </span>
+                                        <span v-else-if="props.column.field == 'bet_date'">
+                                            <small>
+                                                {{props.row.created_at | bet_date}}
+                                            </small>
+                                        </span>
+                                        <span v-else-if="props.column.field == 'draw_date'">
+                                            <small>
+                                                {{ props.row.draw_date | draw_date }} 
+                                                <span class="drawtime" :class="'time-' + props.row.draw_time">{{$getDrawTimeOptions(props.row.draw_time)}}</span>
+                                            </small>
+                                        </span>
+                                    </template>
+                                </vue-good-table>
+                                <!-- <table class="table table-responsive-lg text-left">
                                     <thead>
                                         <tr>
-                                            <!-- <th>ID</th> -->
                                             <th>TXN ID</th>
                                             <th>Ticket No.</th>
                                             <th>Teller</th>
@@ -94,12 +138,10 @@
                                             <th>Amount</th>
                                             <th>Bet Date</th>
                                             <th>Draw Date</th>
-                                            <!-- <th style="width: 110px;">Actions</th> -->
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="ticket in tickets" :key="ticket.id">  
-                                            <!-- <td>{{ticket.id}}</td> -->
                                             <td>{{ticket.txn_code | uppercase }}</td>
                                             <td>
                                                 <ticket-popup 
@@ -109,9 +151,6 @@
                                                 </ticket-popup>
                                             </td>
                                             <td>
-                                                <!-- <span v-if="ticket.user.outlets.length > 0">
-                                                    ({{ticket.user.outlets[0].name}})
-                                                </span> -->
                                                 {{ticket.firstname +' '+ ticket.lastname}}
                                             </td>
 
@@ -129,7 +168,7 @@
                                             </td>
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> -->
                             </div>
                         </div>
                     </div>
@@ -138,7 +177,7 @@
         </section>
         <!--Extended Table Ends-->   
 
-         <div id="printTransactions" v-if="tickets" v-show="false">
+        <div id="printTransactions" v-if="tickets" v-show="false">
             <transactions-print 
                 :draw_time="draw_time"
                 :tickets="tickets">
@@ -161,6 +200,9 @@
     import {ModelListSelect} from 'vue-search-select';
     import 'vue-search-select/dist/VueSearchSelect.css';
 
+    import 'vue-good-table/dist/vue-good-table.css'
+    import { VueGoodTable } from 'vue-good-table';
+
     export default {
         data () {
             return {
@@ -182,13 +224,42 @@
                         date: 'Select Date',
                     }
                 },
+
+                // GOOD TABLE
+                paginationOptions: {
+                    enabled: true,
+                    dropdownAllowAll: false,
+                    position: 'top'
+                },
+                columns: [
+                    { label: 'TXN ID', field: 'txn_code' },
+                    { label: 'Ticket No.', field: 'ticket_number' },
+                    { label: 'Teller', field: 'teller' },
+                    { label: 'Bets', field: 'bets' },
+                    { label: 'Total', field: 'total_amount' },
+                    { label: 'Bet Date', field: 'bet_date' },
+                    { label: 'Draw Date', field: 'draw_date' },
+                ],
+                requests: [],
+                totalRecords: 0,
+                serverParams: {
+                    page: 1, 
+                    per_page: 10,
+                    filter: {
+                        trans_type: '',
+                        player: 0,
+                        ref: '',
+                        status: ''
+                    }
+                },
+                credit_history: [],
             }
         },
         created () {
             this.initOptions();
         },
         components: {
-            Loading, 'ticket-popup': TicketPopup, 'transactions-print': TransactionsTable, 'model-select': ModelListSelect
+            Loading, 'ticket-popup': TicketPopup, 'transactions-print': TransactionsTable, 'model-select': ModelListSelect, VueGoodTable
         },
         methods: {
             initOptions(){
@@ -308,7 +379,21 @@
                         lastname: 'All',
                     });
                 });
-            }
+            },
+
+            // table handlers
+            updateParams(newProps) {
+                this.serverParams = Object.assign({}, this.serverParams, newProps);
+            },
+            onPageChange(params) {
+                this.updateParams({page: params.currentPage});
+                this.fetchData();
+            },
+            onPerPageChange(params) {
+                this.updateParams({per_page: params.currentPerPage});
+                this.fetchData();
+            },
+            // helpers
         },
     }
 </script>

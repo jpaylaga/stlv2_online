@@ -3,48 +3,39 @@
         <loading :active.sync="isLoading">
         </loading>
         <section id="extended">
-            <div class="row">
+            <div class="row mt-2">
+                <div class="col-md-6 col-sm-8">
+                    <h3>Credit Requests References</h3>
+                </div>
+                <div class="col-md-6 col-sm-4">
+                    <router-link class="btn btn-outline-primary pull-right remove-pull-sm mb-0" :to="{name: 'add-reference'}">
+                        <i class="fa fa-plus"></i> Add Reference
+                    </router-link>
+                    <!-- <a class="btn btn-outline-primary pull-right remove-pull-sm mb-0" href="/credit-balance/topup">
+                        <i class="fa fa-plus"></i> Add Reference
+                    </a> -->
+                </div>
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
-                            <h3>Credit Requests</h3>
-                            <div class="mb-2" v-if="!$is('super_admin')">
-                                <div class="alert alert-info">
-                                    <h5 class="mb-0">Current Balance: <strong>{{credit_balance | currency('&#8369;')}}</strong></h5>
-                                </div>
-                            </div>
-
+                            <!-- <h3>Credit Requests References</h3> -->
                             <div class="row mb-2">
                                 <div class="col-md-2">
-                                    <label>Transaction Type</label>
-                                    <select v-model="serverParams.filter.trans_type" class="form-control">
+                                    <label>Outlet</label>
+                                    <select v-model="serverParams.filter.outlet" class="form-control">
                                         <option value="">All</option>
-                                        <option value="deposit">Deposit</option>
-                                        <option value="withdraw">Withdraw</option>
+                                        <option value="gcash">GCash</option>
+                                        <option value="ml">MLhuillier</option>
+                                        <option value="cebuana">Cebuana</option>
                                     </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <label>Member</label>
-                                    <model-select 
-                                        :list="playerOptions"
-                                        option-value="id"
-                                        :custom-text="fullName"
-                                        v-model="serverParams.filter.player"
-                                        placeholder="Select Member">
-                                    </model-select>
                                 </div>
                                 <div class="col-md-3">
                                     <label>Ref #</label>
-                                    <input v-model="serverParams.filter.ref" type="text" class="form-control">
+                                    <input v-model="serverParams.filter.ref_number" type="text" class="form-control">
                                 </div>
-                                <div class="col-md-2">
-                                    <label>Status</label>
-                                    <select v-model="serverParams.filter.status" class="form-control">
-                                        <option value="">All</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="done">Done</option>
-                                        <option value="cancelled">Cancelled</option>
-                                    </select>
+                                <div class="col-md-3">
+                                    <label>Name</label>
+                                    <input v-model="serverParams.filter.name" type="text" class="form-control">
                                 </div>
                                 <div class="col-md-2 filter-buttons">
                                     <button @click="fetchData" class="btn btn-outline-primary round">
@@ -62,27 +53,29 @@
                                     mode="remote"
                                     :totalRows="totalRecords"
                                     :columns="columns" 
-                                    :rows="requests"
+                                    :rows="references"
                                     :sort-options="{ enabled: false }"
                                     :pagination-options="paginationOptions"
                                     @on-page-change="onPageChange"
                                     @on-per-page-change="onPerPageChange"
                                 >
                                     <template slot="table-row" slot-scope="props">
-                                        <span v-if="props.column.field == 'status'">
-                                            <button v-if="props.row.status == 'pending'" @click="updateStatus(props.row)" class="btn btn-sm" :class="`btn-${getStatusClass(props.row.status)}`">{{props.row.status}}</button>
-                                            <button v-else class="btn btn-sm" :class="`btn-${getStatusClass(props.row.status)}`">{{props.row.status}}</button>
+                                        <span v-if="props.column.field == 'actions'">
+                                            <button class="btn btn-sm btn-primary" @click="$router.push({name:'edit-reference',params:{id: props.row.id}})">
+                                                <i class="fa fa-edit"></i> Update
+                                            </button>
                                         </span>
                                         <span v-else-if="props.column.field == 'outlet'">
-                                            <span v-if="props.row.outlet == 'manual'">Manual</span>
-                                            <img v-else class="rounded" width="40" :src="`/images/outlets/${$getOutletOptions(props.row.outlet,true)}`" alt="">
+                                            <img class="rounded" width="40" :src="`/images/outlets/${$getOutletOptions(props.row.outlet,true)}`" alt="">
                                         </span>
-                                        <span v-else-if="props.column.field == 'type'">
-                                            <span v-if="props.row.type == 'withdraw'" class="text-danger">
-                                                <i class="fa fa-upload"></i> {{props.row.type}}
-                                            </span>
-                                            <span v-else class="text-primary">
-                                                <i class="fa fa-download"></i> {{props.row.type}}
+                                        <span v-else-if="props.column.field == 'is_active'">
+                                            <span class="pull-left" @click.prevent="changeReferenceStatus(props.row.id, props.row.is_active)">
+                                                <switches 
+                                                    v-model="props.row.is_active"
+                                                    theme="custom"
+                                                    color="blue"
+                                                    type-bold="true"
+                                                ></switches>  
                                             </span>
                                         </span>
                                     </template>
@@ -115,96 +108,51 @@
         data () {
             return {
                 isLoading: false,
-                playerOptions: [],
                 paginationOptions: {
                     enabled: true,
                     dropdownAllowAll: false,
                     position: 'top'
                 },
                 columns: [
-                    { label: 'Ref', field: 'ref' },
-                    { label: 'Date/Time', type: 'date', dateInputFormat: 'yyyy-MM-dd HH:mm:ss', dateOutputFormat: 'MMM dd, yyyy h:mma', field: 'created_at' },
-                    { label: 'Type', field: 'type' },
-                    { label: 'Via', field: 'outlet' },
-                    { label: 'Amount', field: 'amount' },
-                    { label: 'Requester', html: true, field: this.getMember },
-                    // { label: 'Fulfilled By', html: true, field: this.getAgent },
-                    { label: 'Status', field: 'status' },
-                    { label: 'Notes', field: 'description', width: '180px', },
+                    { label: 'Name', field: 'name' },
+                    { label: 'Outlet', field: 'outlet'  },
+                    { label: 'Ref #', field: 'ref_number' },
+                    { label: 'Mobile #', field: 'mobile_number' },
+                    { label: 'Notes', field: 'notes', width: '180px', },
+                    { label: 'Status', field: 'is_active' },
+                    { label: 'Actions', field: 'actions', sortable: false },
                 ],
-                requests: [],
+                references: [],
                 totalRecords: 0,
                 serverParams: {
                     page: 1, 
                     per_page: 10,
                     filter: {
-                        trans_type: '',
-                        player: 0,
-                        ref: '',
-                        status: ''
+                        name: '',
+                        outlet: '',
+                        mobile_number: '',
+                        ref_number: '',
                     }
-                },
-                current_user: null,
-                credit_balance: 0,
+                }
             }
         },
         created () {
-            this.init();
             this.fetchData(()=>{});
-            this.fetchPlayers(()=>{});
         },
         methods: {
-            init(){
-                this.current_user = this.$getUser();
-                this.getCreditBalance();
-            },
-            getCreditBalance(){
-                axios.get('/api/user/credit-balance/' + this.current_user.id).then(response => {
-                    this.credit_balance = response.data.credit_balance
-                });
-            },
             fetchData () {
                 const self = this
                 self.isLoading = true;
-                axios.get('/api/credits/requests', {
+                axios.get('/api/credits/references', {
                     params: self.serverParams
                 }).then(response => {
-                    self.requests = response.data.data
+                    self.references = response.data.data
                     self.totalRecords = response.data.total
-                    self.isLoading = false;
-                }); 
-            },
-            fetchPlayers(){
-                const self = this
-                self.isLoading = true;
-                axios.get('/api/users', {
-                    params: { role: 'player' }
-                }).then(response => {
-                    self.playerOptions = response.data;
-                    self.isLoading = false;
-                }); 
-            },
-            getMember(item){
-                if( this.$isOwn(item.player_id) )
-                    return `${item.player.firstname} ${item.player.lastname}`;
-                return `<a href="/manage-players/update/${item.player.id}">${item.player.firstname} ${item.player.lastname}</a>`;
-            },
-            getAgent(item){
-                return `${item.agent.firstname} ${item.agent.lastname}`;
-            },
-            getStatusClass(status){
-                switch (status) {
-                    case 'done': return 'success'; break;
-                    case 'cancelled': return 'danger'; break;
-                    default: return 'warning'; break;
-                }
-            },
-            fullName(user) {
-                return `${user.firstname} ${user.lastname}`;
+                }).catch(error => {
+                    console.log(error);
+                }).then(() => { this.isLoading = false })
             },
             updateStatus(item){
-                if( this.$isOwn(item.player_id) ) return; // if own
-
                 const self = this
 
                 this.$swal({
@@ -241,7 +189,6 @@
                                 if( response.data.success ){
                                     self.$swal({ title: 'Success!', text: 'Credit Request successfully udpated.', type: 'success' });
                                     this.fetchData();
-                                    this.getCreditBalance();
                                 }else{
                                     self.$swal({ title: 'Oops!', text: response.data.message, type: 'error' });
                                 } 
@@ -251,6 +198,41 @@
                     })
 
                  
+            },
+            getOutlet(item){
+                let outlet = this.$getOutletOptions(item.outlet);
+                return `<span class="badge badge-success">${outlet}</span>`;
+            },
+            changeReferenceStatus(ref_id, ref_status){
+                let action = ref_status ? 'deactivate' : 'activate';
+                let action_val = ref_status ? false : true;
+                this.$swal({
+                    title: 'Update Reference Status',
+                    text: "Are you sure to " + action + ' this reference?',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes',
+                    cancelButtonText: 'No'
+                }).then((result) => {
+                    if (result.value) {
+                        this.isLoading = true
+                        axios.put('/api/credits/reference/' + ref_id, { is_active: action_val }).then(resp => {
+                            if( resp.data.success ){
+                                this.$swal({
+                                    'title': 'Success!',
+                                    'text': 'Reference ' + action + 'd!',
+                                    'type': 'success'
+                                }).then((result) => { 
+                                    this.fetchData();
+                                });
+                            }else{
+                                Vue.toasted.error(resp.data.message);
+                            }
+                        }).catch(error => {
+                            Vue.toasted.error('Something went wrong. Please contact admin.');
+                        }).then(() => { this.isLoading = false })
+                    }
+                })
             },
             // table handlers
             updateParams(newProps) {
@@ -266,10 +248,10 @@
             },
             resetFilter(){
                 this.serverParams.filter = {
-                    trans_type: '',
-                    player: 0,
-                    ref: '',
-                    status: ''
+                    name: '',
+                    outlet: '',
+                    mobile_number: '',
+                    ref_number: '',
                 }
                 this.fetchData();
             }

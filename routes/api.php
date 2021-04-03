@@ -26,6 +26,7 @@ Route::group(['middleware' => ['json.response']], function () {
         Route::patch('/user/{user}', 'UserController@update');
         Route::post('/user/change-status', 'UserController@changeStatus');
         Route::post('/user/change-credit-status', 'UserController@changeCreditStatus');
+        Route::get('/user/credit-balance/{user}', 'UserController@getCreditBalance');
         Route::post('/user/add-image', 'UserController@addImage');
         Route::post('/user/update-percentage', 'UserController@updatePercentage');
         Route::post('/user/update-float', 'UserController@updateFloat');
@@ -122,12 +123,19 @@ Route::group(['middleware' => ['json.response']], function () {
             Route::get('/', 'Api\CreditsController@get');
             Route::get('/history', 'Api\CreditsController@getHistory');
             Route::get('/requests', 'Api\CreditRequestController@get');
+            Route::post('/topup', 'Api\CreditRequestController@topup');
+            Route::post('/withdraw', 'Api\CreditRequestController@withdraw');
             Route::patch('/requests/update-status/{creditrequest}', 'Api\CreditRequestController@updateStatus');
 
             Route::post('/add', 'Api\CreditsController@add')
                 ->middleware('can:transfer-credits');
             Route::post('/transfer', 'Api\CreditsController@transfer')
                 ->middleware('can:transfer-credits');
+
+            Route::get('/references', 'Api\CreditReferenceController@list');
+            Route::get('/reference/{reference}', 'Api\CreditReferenceController@get');
+            Route::post('/reference', 'Api\CreditReferenceController@store');
+            Route::put('/reference/{reference}', 'Api\CreditReferenceController@update');
         });
 
         Route::post('/change-password', 'Api\AuthController@changePassword');

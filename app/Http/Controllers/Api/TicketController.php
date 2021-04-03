@@ -51,7 +51,7 @@ class TicketController extends Controller
             $area = $user->areas()->first();
             if( $area->id == $ticket->area_id )
                 $can_cancel = true;
-        }elseif( in_array($user->role, array('usher', 'teller', 'coordinator')) && $now->diffInMinutes($ticket->created_at) < 5 ){
+        }elseif( in_array($user->role, array('usher', 'teller', 'coordinator', 'player')) && $now->diffInMinutes($ticket->created_at) < 5 ){
             $can_cancel = true;
         }else{
             $message = 'Ticket can not be cancelled. Please contact Admin.';
@@ -73,7 +73,8 @@ class TicketController extends Controller
                     $owner->credits += $ticket->total_amount;
                     if( $owner->save() ){
                         CreditHistory::create([
-                            'type' => 'refund',
+                            'type' => 'deposit',
+                            'description' => 'Refund to cancelled ticket.',
                             'from' => $user->id,
                             'to' => $owner->id,
                             'amount' => $ticket->total_amount,

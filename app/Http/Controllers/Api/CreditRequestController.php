@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\CreditRequest;
+use App\CreditHistory;
+use App\User;
 
 class CreditRequestController extends Controller
 {
@@ -18,7 +20,11 @@ class CreditRequestController extends Controller
         $query->orderBy('status', 'desc')->orderBy('created_at', 'desc');
 
         if( $user->role == 'coordinator' ){
-            $children = $user->children->pluck('id');
+            $agents = $request->user()->children;
+            $agents = $agents->merge(User::whereId($request->user()->id)->get());
+            $children = $agents->pluck('id');
+
+            // $children = $user->children->pluck('id');
             $query->whereIn('player_id', $children);
         }
 
@@ -37,6 +43,80 @@ class CreditRequestController extends Controller
         return $query->paginate($request->per_page ?? 10);
     }
 
+    public function topup(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'ref' => 'required',
+            'outlet' => 'required',
+            'sender' => 'required',
+            'receiver' => 'required',
+            'amount' => 'required|min:1',
+            'player_id' => 'required',
+        ]);
+
+        if ($validator->fails()) return ['success' => false, 'message' => $validator->errors()];
+        
+        $user = $request->user;
+        $payload = $request->all(); 
+
+        $creditrequest = CreditRequest::create([
+            'type' => 'deposit',
+            'status' => 'pending',
+            'ref' => $payload['ref'],
+            'outlet' => $payload['outlet'],
+            'amount' => $payload['amount'],
+            'sender' => $payload['sender'],
+            'receiver' => $payload['receiver'],
+            'player_id' => $payload['player_id'],
+            'user_id' => isset( $payload['user_id'] ) ? $payload['user_id'] : User::where('role', 'super_admin')->first()->id,
+        ]);
+
+        return ['success' => true, 'message' => 'Request successfully sent.'];
+    }
+
+    public function withdraw(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'outlet' => 'required',
+            'amount' => 'required|min:1',
+            'player_id' => 'required',
+        ]);
+
+        if ($validator->fails()) return ['success' => false, 'message' => $validator->errors()];
+
+        $payload = $request->all(); 
+        $player = User::findOrFail($payload['player_id']);
+        if( (int)$payload['amount'] > $player->creditBalance() ) return ['success' => false, 'message' => 'Insufficient credits.'];
+
+        $creditrequest = CreditRequest::create([
+            'type' => 'withdraw',
+            'status' => 'pending',
+            'outlet' => $payload['outlet'],
+            'amount' => $payload['amount'],
+            'receiver' => $payload['receiver'],
+            'description' => $payload['description'],
+            'player_id' => $payload['player_id'],
+            'user_id' => isset( $payload['user_id'] ) ? $payload['user_id'] : User::where('role', 'super_admin')->first()->id,
+        ]);
+
+        // auto deduct on player withdraw even if request isnt confirmed
+        CreditHistory::create([
+            'type' => 'withdraw',
+            'to' => $player->id,
+            'from' => $player->id,
+            'amount' => (int)$payload['amount'],
+            'user_id' => $player->id,
+        ]);
+
+        // $result = $creditrequest->updateUserCredit();
+        // if( !$result ){
+        //     $creditrequest->delete();
+        //     return ['success' => false, 'message' => 'Something went wrong on updating user credit, please try again.'];
+        // }
+
+        return ['success' => true, 'message' => 'Cash-out Request successfully sent.'];
+    }
+
     public function updateStatus(Request $request, CreditRequest $creditrequest)
     {
         $user = $request->user();
@@ -52,11 +132,22 @@ class CreditRequestController extends Controller
         if ($validator->fails()) return ['success' => false, 'message' => 'Something went wrong, please try again.'];
         
         // credit update
+        $wthdrwConfirm = $creditrequest->type == 'withdraw' ? true : false;
         if( $request->status == 'done' ){
-            $result = $creditrequest->updateUserCredit();
-            if( !$result ){
-                return ['success' => false, 'message' => 'Something went wrong on updating user credit, please try again.'];
+            if( $creditrequest->type == 'deposit' ){
+                // check if sufficient credits
+                if( in_array($user->role, ['area_admin', 'coordinator']) && ( (int)$user->creditBalance() < (int)$creditrequest->amount ) ){
+                    return ['success' => false, 'message' => 'You have insufficient credits to transfer to this account.'];
+                }
+                $result = $creditrequest->updateUserCredit();
+                if( !$result ){
+                    return ['success' => false, 'message' => 'Something went wrong on updating user credit, please try again.'];
+                }
+            }else{ //withdrawals
+                
             }
+        }elseif( $request->status == 'cancelled' && $creditrequest->type == 'withdraw' ){
+            $result = $creditrequest->updateUserCredit(true); //update to refund 
         }
 
         $creditrequest->status = $request->status;
