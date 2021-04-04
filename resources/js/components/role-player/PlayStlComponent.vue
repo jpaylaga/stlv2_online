@@ -58,14 +58,14 @@
                                 <div class="form-group row mt-2 mb-1">
                                     <div class="col-md-3"> <label for="combination" class="mb-0">Combination</label> </div>
                                     <div class="col-md-12">
-                                        <input @focus="focused_input = 'combination'" name="combination" v-model="bet.combination" type="text" class="form-control" :class="focused_input == 'combination' ? 'focused_input' : ''">
+                                        <input disabled @focus="focused_input = 'combination'" name="combination" v-model="bet.combination" type="text" class="form-control" :class="focused_input == 'combination' ? 'focused_input' : ''">
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
                                     <div class="col-md-3"> <label class="mb-0" for="amount">Amount</label> </div>
                                     <div class="col-md-12">
-                                        <input @focus="focusInput('amount')" name="amount" v-model="bet.amount" type="number" min="1" max="999" class="form-control" :class="focused_input == 'amount' ? 'focused_input' : ''">
+                                        <input disabled @focus="focusInput('amount')" name="amount" v-model="bet.amount" type="number" min="1" max="999" class="form-control" :class="focused_input == 'amount' ? 'focused_input' : ''">
                                     </div>
                                 </div>
 

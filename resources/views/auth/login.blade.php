@@ -12,7 +12,7 @@
                             <div class="col-12 d-flex align-items-center justify-content-center">
                                 <div class="card gradient-indigo-purple text-center width-400">
                                     <div class="card-img overlap">
-                                        <img alt="element 06" class="mb-1" src="{{ asset('/images/logo.png') }}" width="190">
+                                        <img alt="element 06" class="mb-1" src="{{ asset('/images/logo.jpg') }}" width="190">
                                     </div>
                                     <div class="card-body">
                                         <div class="card-block">
