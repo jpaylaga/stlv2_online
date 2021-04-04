@@ -2,20 +2,14 @@ import moment from 'moment';
 export default {
     methods: {
         $init() {
-            if( !this.$isLoggedIn() ){
-                this.fetchUser();
-            }
+            this.fetchUser();
         },
         $isLoggedIn() {
-            // let user = localStorage.getItem(`${this.COOKIE_PREFIX}user`);
             let user = this.$cookies.get(this.COOKIE_PREFIX + "user");
             return Boolean(user);
         },
         $getUser() {
-            this.fetchUser();
             return this.$cookies.get(this.COOKIE_PREFIX + "user");
-            // var user = localStorage.getItem(`${this.COOKIE_PREFIX}user`);
-            // return JSON.parse(user);
         },
         $is(value = '') {
             if(value) {
@@ -102,8 +96,6 @@ export default {
         // helpers
         async fetchUser(){
             await axios.get('/api/user').then(response => {
-                // localStorage.removeItem(`${this.COOKIE_PREFIX}user`)
-                // localStorage.setItem(`${this.COOKIE_PREFIX}user`, JSON.stringify(response.data))
                 this.$cookies.remove(`${this.COOKIE_PREFIX}user`);
                 this.$cookies.set(`${this.COOKIE_PREFIX}user`, response.data)
             });

@@ -5,7 +5,7 @@
             <div class="row">
                 <div class="col-12 mb-1 mx-1">
                     <div class="content-header mt-0">
-                        <h3>Howdy, {{player.firstname}}!</h3>
+                        <h3 v-if="player">Howdy, {{player.firstname}}!</h3>
                     </div>
                     <p class="content-sub-header">Welcome to your Dashboard.</p>
                 </div>
@@ -112,8 +112,9 @@
         },
         methods: {
             init(){
-                this.player = this.$getUser();
-                this.getCreditBalance();
+                // this.player = this.$getUser();
+                this.fetchUser();
+                // this.getCreditBalance();
                 this.getResults();
             },
             getResults(){
@@ -143,6 +144,13 @@
                 let result = _.find(results, ['draw_time', draw_time]);
                 return result ? result.result : '---';
             },
+
+            async fetchUser(){
+                await axios.get('/api/user').then(response => {
+                    this.player = response.data;
+                    this.getCreditBalance();
+                });
+            }
         }
     }
 </script>
