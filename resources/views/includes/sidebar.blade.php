@@ -56,11 +56,11 @@
                     </ul>
                 </li>
                 @if( env('SHOW_PAYOUTS_PAGE', true) )
-                <li class="nav-item {{ Request::segment(1) == 'payouts' ? 'active' : '' }}">
+                <!-- <li class="nav-item {{ Request::segment(1) == 'payouts' ? 'active' : '' }}">
                     <a href="/payouts">
                         <i class="ft-user-check"></i><span data-i18n="" class="menu-title">Payouts</span>
                     </a>
-                </li>
+                </li> -->
                 @endif
                 @can('manage-credits')
                 <li class="has-sub nav-item">
@@ -68,14 +68,14 @@
                         <i class="fa fa-rub"></i><span data-i18n="" class="menu-title">Credits</span>
                     </a>
                     <ul class="menu-content">
-                        <li class="{{ Request::segment(1) == 'credits' ? 'active' : '' }}">
-                            <a href="/credits" class="menu-item">List</a>
-                        </li>
                         <li class="{{ Request::segment(1) == 'credit-requests' ? 'active' : '' }}">
                             <a href="/credit-requests" class="menu-item">Requests</a>
                         </li>
                         <li class="{{ Request::segment(1) == 'credit-references' ? 'active' : '' }}">
                             <a href="/credit-references" class="menu-item">References</a>
+                        </li>
+                        <li class="{{ Request::segment(1) == 'credits' ? 'active' : '' }}">
+                            <a href="/credits" class="menu-item">Settings</a>
                         </li>
                     </ul>
                 </li>

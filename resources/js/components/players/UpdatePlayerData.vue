@@ -2,7 +2,7 @@
     <div id="update-player">
         <loading :active.sync="isLoading"></loading>
         <div class="row">
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <h4 class="form-section-heading"><i class="ft-user"></i> Player Information</h4>
                 <form class="form form-horizontal" @submit.prevent="save">
                     <div class="form-body">
@@ -87,9 +87,9 @@
                     </div>
                 </form>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-12">
                 <h4 class="form-section-heading"><i class="fa fa-rub"></i> Credit History</h4>
-                <h5 class="pull-left"><strong>Current Credits: {{player.credits | currency('&#8369;', 0)}} </strong></h5>
+                <h5 class="pull-left"><strong>Current Credits: {{player.creditBalance | currency('&#8369;', 0)}} </strong></h5>
                 <!-- <button @click="openModal" class="btn btn-success pull-right"><i class="fa fa-plus"></i> Add Credits</button> -->
                 <div class="clearfix">&nbsp;</div>
                 <div class="clearfix" v-if="player.creditHistory">
@@ -152,6 +152,7 @@
                     { label: 'Type', field: 'type' },
                     { label: 'By', field: 'by' },
                     { label: 'Date/Time', type: 'date', dateInputFormat: 'yyyy-MM-dd HH:mm:ss', dateOutputFormat: 'MMM dd, yyyy HH:mm:ss', field: 'created_at' },
+                    { label: 'Notes', field: 'description' },
                 ]
             }
         },

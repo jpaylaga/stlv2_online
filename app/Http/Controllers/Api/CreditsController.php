@@ -24,7 +24,15 @@ class CreditsController extends Controller
         else
             $users_query->whereIn('role', ['player','teller','usher','coordinator']);
 
-        return $users_query->get();
+        $users = $users_query->get();
+
+        $users->map(function ($user) {
+            $temp = User::find($user->id);
+            $user->credits = $temp->creditBalance();
+            return $user;
+        });
+
+        return $users;
     }
 
     public function add(Request $request)

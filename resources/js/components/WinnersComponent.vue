@@ -4,35 +4,29 @@
         </loading>
         <div class="row">
             <div class="col-12 mt-1 mb-1">
-                <div class="content-header">{{draw_date | draw_date}} Winners</div>
-                <p class="content-sub-header">ALL | Total Hits: {{summary_total_hits}} | Total amount: {{summary_total_winnings | currency('&#8369;')}}</p>
-                <div class="alert alert-info inline-block" v-if="!$is('super_admin')">
+                <div class="content-header mt-0">{{draw_date | draw_date}} Winners</div>
+                <!-- <p class="content-sub-header"><strong>Total Hits</strong>: {{summary_total_hits}}</p> -->
+                <div class="alert alert-info inline-block mb-0 mt-2" v-if="!$is('super_admin')">
                     <h5 class="mb-0">Current Balance: <strong>{{credit_balance | currency('&#8369;')}}</strong></h5>
                 </div>
-                <nav id="top-right-text">
-                    <ul>
-                        <li>
-                            <a href="#" class="py-1 h6" @click.prevent="newPayout">
-                                <i class="icon-docs font-medium-5 mr-2"></i>New Payout
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+                <button type="button" class="display-block btn btn-success mt-2 mb-0" @click.prevent="newPayout">
+                    <i class="icon-docs"></i> New Payout
+                </button>
             </div>
         </div>
         <!--Extended Table starts-->
         <section id="extended">                        
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-12 p-0">
                     <div class="card">
-                        <div class="card-header">
+                        <div class="card-header pt-2 pb-0">
                             <div class="form-group filter">
-                                <div class="row" style="padding: 0 15px;">
-                                    <div class="col-md-2 date-picker">
-                                        <label><strong>Total Amount</strong></label>
+                                <div class="row p-0">
+                                    <div class="mb-2 col-md-2 date-picker">
+                                        <label><strong>Total Amount({{summary_total_hits}} Hits)</strong></label>
                                         <h4 style="margin-top: 8px;">{{total_winnings | currency('&#8369;')}}</h4>
                                     </div>
-                                    <div class="col-md-2 date-picker dp-fullwidth">
+                                    <div class="mb-2 col-md-2 date-picker dp-fullwidth">
                                         <label>Draw Date</label>
                                         <date-picker 
                                             @change="fetchHeadingData" 
@@ -41,28 +35,24 @@
                                             :lang="lang">
                                         </date-picker>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="mb-2 col-md-2">
                                         <label>Ticket#</label>
                                         <input v-model="ticket_number" type="text" class="form-control">
                                     </div>
-                                    <div class="col-md-2">
-                                        <div class="form-group row">
-                                            <label>Draw Time</label>
-                                            <select id="draw_time" v-model="draw_time" class="form-control" @change="fetchData">
-                                                <option value="">All</option>
-                                                <option v-for="dt in $getDrawTimeOptions()" :key="dt.id" :value="dt.id">{{dt.name}}</option>
-                                            </select>
-                                        </div>
+                                    <div class="mb-0 col-md-2">
+                                        <label>Draw Time</label>
+                                        <select id="draw_time" v-model="draw_time" class="form-control" @change="fetchData">
+                                            <option value="">All</option>
+                                            <option v-for="dt in $getDrawTimeOptions()" :key="dt.id" :value="dt.id">{{dt.name}}</option>
+                                        </select>
                                     </div>
-                                    <div class="col-md-2 form-actions">
-                                        <button @click="fetchData" class="btn btn-outline-primary round">
-                                            <i class="ft-search mr-2"></i>Search
-                                        </button>
+                                    <div class="col-md-2 col-sm-6">
+                                        <label>&nbsp;</label>
+                                        <button @click="fetchData" class="btn btn-info mb-0 w-full"> <i class="ft-search mr-2"></i>Search </button>
                                     </div>
-                                    <div class="col-md-2 form-actions text-right">
-                                        <button style="width: 100%;" @click="print" class="btn btn-outline-primary round">
-                                            <i class="ft-printer mr-2"></i>Print
-                                        </button>
+                                    <div class="col-md-2 col-sm-6">
+                                        <label>&nbsp;</label>
+                                        <button @click="print" class="btn btn-info mb-0 w-full"> <i class="ft-printer mr-2"></i>Print </button>
                                     </div>
                                 </div>
                             </div>
@@ -321,8 +311,8 @@
 </script>
 
 <style>
-    #winners-list .card-header{ padding-bottom: 0; }
+    /* #winners-list .card-header{ padding-bottom: 0; }
     .filter{ margin: 0; }
     .filter label{ margin: 0; font-size: 14px; }
-    .search-filter{ margin: 0 15px 16px; }
+    .search-filter{ margin: 0 15px 16px; } */
 </style>

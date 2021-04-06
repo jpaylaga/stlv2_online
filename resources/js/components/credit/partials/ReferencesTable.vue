@@ -8,42 +8,40 @@
                     <h3>Credit Requests References</h3>
                 </div>
                 <div class="col-md-6 col-sm-4">
-                    <router-link class="btn btn-outline-primary pull-right remove-pull-sm mb-0" :to="{name: 'add-reference'}">
+                    <router-link class="btn btn-primary pull-right remove-pull-sm mb-0" :to="{name: 'add-reference'}">
                         <i class="fa fa-plus"></i> Add Reference
                     </router-link>
-                    <!-- <a class="btn btn-outline-primary pull-right remove-pull-sm mb-0" href="/credit-balance/topup">
-                        <i class="fa fa-plus"></i> Add Reference
-                    </a> -->
                 </div>
                 <div class="col-sm-12">
                     <div class="card">
                         <div class="card-header">
                             <!-- <h3>Credit Requests References</h3> -->
                             <div class="row mb-2">
-                                <div class="col-md-2">
-                                    <label>Outlet</label>
+                                <div class="col-md-2 mb-2">
+                                    <label class="mb-0">Outlet</label>
                                     <select v-model="serverParams.filter.outlet" class="form-control">
                                         <option value="">All</option>
-                                        <option value="gcash">GCash</option>
-                                        <option value="ml">MLhuillier</option>
-                                        <option value="cebuana">Cebuana</option>
+                                        <option v-for="outlet in $getOutletOptions()" :key="outlet.id" :value="outlet.id">{{outlet.name}}</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label>Ref #</label>
+                                <div class="col-md-3 mb-2">
+                                    <label class="mb-0">Ref #</label>
                                     <input v-model="serverParams.filter.ref_number" type="text" class="form-control">
                                 </div>
-                                <div class="col-md-3">
-                                    <label>Name</label>
+                                <div class="col-md-3 mb-0">
+                                    <label class="mb-0">Name</label>
                                     <input v-model="serverParams.filter.name" type="text" class="form-control">
                                 </div>
-                                <div class="col-md-2 filter-buttons">
-                                    <button @click="fetchData" class="btn btn-outline-primary round">
-                                        <i class="ft-search mr-2"></i>Search
-                                    </button>
-                                    <button @click="resetFilter" class="btn btn-outline-danger round">
-                                        <i class="ft-x mr-2"></i>Reset
-                                    </button>
+                                <div class="col-md-2">
+                                    <label class="mb-0">&nbsp;</label>
+                                    <div class="display-block">
+                                        <button @click="fetchData" class="mb-0 btn btn-info">
+                                            <i class="ft-search mr-2"></i>Search
+                                        </button>
+                                        <button @click="resetFilter" class="mb-0 btn btn-danger">
+                                            <i class="ft-x mr-2"></i>Reset
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -260,8 +258,8 @@
 </script>
 
 <style>
-    #coordinators-list .card-header{ padding-bottom: 0; }
-    .filter{ margin: 0; }
-    .filter label{ margin: 0; font-size: 14px; }
-    .search-filter{ margin: 0 15px 16px; }
+    /* #coordinators-list .card-header{ padding-bottom: 0; } */
+    /* .filter{ margin: 0; } */
+    /* .filter label{ margin: 0; font-size: 14px; } */
+    /* .search-filter{ margin: 0 15px 16px; } */
 </style>

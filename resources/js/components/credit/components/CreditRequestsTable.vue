@@ -5,8 +5,8 @@
         <section id="extended">
             <div class="row">
                 <div class="col-sm-12">
-                    <div class="card">
-                        <div class="card-header">
+                    <div class="card mt-0">
+                        <div class="card-header p-2">
                             <h3>Credit Requests</h3>
                             <div class="mb-2" v-if="!$is('super_admin')">
                                 <div class="alert alert-info">
@@ -15,16 +15,16 @@
                             </div>
 
                             <div class="row mb-2">
-                                <div class="col-md-2">
-                                    <label>Transaction Type</label>
+                                <div class="col-md-2 mb-2">
+                                    <label class="mb-0">Transaction Type</label>
                                     <select v-model="serverParams.filter.trans_type" class="form-control">
                                         <option value="">All</option>
                                         <option value="deposit">Deposit</option>
                                         <option value="withdraw">Withdraw</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label>Member</label>
+                                <div class="col-md-3 mb-2">
+                                    <label class="mb-0">Member</label>
                                     <model-select 
                                         :list="playerOptions"
                                         option-value="id"
@@ -33,12 +33,12 @@
                                         placeholder="Select Member">
                                     </model-select>
                                 </div>
-                                <div class="col-md-3">
-                                    <label>Ref #</label>
+                                <div class="col-md-3 mb-2">
+                                    <label class="mb-0">Ref #</label>
                                     <input v-model="serverParams.filter.ref" type="text" class="form-control">
                                 </div>
-                                <div class="col-md-2">
-                                    <label>Status</label>
+                                <div class="col-md-2 mb-0">
+                                    <label class="mb-0">Status</label>
                                     <select v-model="serverParams.filter.status" class="form-control">
                                         <option value="">All</option>
                                         <option value="pending">Pending</option>
@@ -46,18 +46,21 @@
                                         <option value="cancelled">Cancelled</option>
                                     </select>
                                 </div>
-                                <div class="col-md-2 filter-buttons">
-                                    <button @click="fetchData" class="btn btn-outline-primary round">
-                                        <i class="ft-search mr-2"></i>Search
-                                    </button>
-                                    <button @click="resetFilter" class="btn btn-outline-danger round">
-                                        <i class="ft-x mr-2"></i>Reset
-                                    </button>
+                                <div class="col-md-2">
+                                    <label class="mb-0">&nbsp;</label>
+                                    <div class="display-block">
+                                        <button @click="fetchData" class="mb-0 btn btn-info">
+                                            <i class="ft-search mr-2"></i>Search
+                                        </button>
+                                        <button @click="resetFilter" class="mb-0 btn btn-danger">
+                                            <i class="ft-x mr-2"></i>Reset
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="card-block">
+                            <div class="card-block px-2">
                                 <vue-good-table 
                                     mode="remote"
                                     :totalRows="totalRecords"
@@ -278,8 +281,8 @@
 </script>
 
 <style>
-    #coordinators-list .card-header{ padding-bottom: 0; }
-    .filter{ margin: 0; }
-    .filter label{ margin: 0; font-size: 14px; }
-    .search-filter{ margin: 0 15px 16px; }
+    /* #coordinators-list .card-header{ padding-bottom: 0; } */
+    /* .filter{ margin: 0; } */
+    /* .filter label{ margin: 0; font-size: 14px; } */
+    /* .search-filter{ margin: 0 15px 16px; } */
 </style>

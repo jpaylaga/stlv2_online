@@ -158,7 +158,7 @@ span.added{
 }
 
 .dp-fullwidth {
-    padding-right: 0 !important;
+    // padding-right: 0 !important;
     .mx-datepicker{ width: 100%; }
 }
 
@@ -270,4 +270,8 @@ span.amount{
     .vgt-wrap__footer .footer__row-count__select{
         font-size: 0.8rem !important;
     }
+}
+
+.w-full{
+    width: 100%;
 }

@@ -66,7 +66,6 @@ class UserController extends Controller
 
     public function get(Request $request)
     {
-        
         $user = $request->user();
         $users = [];
         $_roles = array();
@@ -141,17 +140,19 @@ class UserController extends Controller
 
         if ($request->filled('role') && $request->role == 'player') {
             $users = $users_query->with('parent')->get();
-            return $users;
+            // $users_query->with('parent')->get();
+            // return $users;
         }
 
         if( $with_areas ){
             $users = $users_query->with('areas', 'agentAreas')->get();
         }
 
-        if ($request->filled('role') && $request->role == 'teller') {
+        if ($request->filled('role') && in_array($request->role, ['teller','agent','player'])) {
             $users->map(function ($user) {
                 $outlet = User::find($user->id)->outlets()->first();
                 $user->outlet = $outlet ? $outlet->name : '';
+                $user->credits = $user->creditBalance();
                 return $user;
             });
         }
